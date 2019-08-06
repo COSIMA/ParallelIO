@@ -10,7 +10,8 @@ trap exit INT TERM
 
 printf 'running PIO tests...\n'
 
-PIO_TESTS='tst_pio_udf tst_pio_async'
+#PIO_TESTS='tst_pio_udf tst_pio_async'
+PIO_TESTS='tst_pio_udf'
 
 success1=true
 success2=true
