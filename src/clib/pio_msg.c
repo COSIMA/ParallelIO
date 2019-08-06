@@ -158,15 +158,16 @@ int set_fill_handler(iosystem_desc_t *ios)
 }
 
 /**
+ * @internal
  * This function is run on the IO tasks to create a netCDF file.
  *
  * @param ios pointer to the iosystem info.
  * @returns 0 for success, PIO_EIO for MPI Bcast errors, or error code
  * from netCDF base function.
- * @internal
  * @author Ed Hartnett
  */
-int create_file_handler(iosystem_desc_t *ios)
+int
+create_file_handler(iosystem_desc_t *ios)
 {
     int ncid;
     int len;
@@ -191,14 +192,59 @@ int create_file_handler(iosystem_desc_t *ios)
         return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
     if ((mpierr = MPI_Bcast(&mode, 1, MPI_INT, 0, ios->intercomm)))
         return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
-    PLOG((1, "create_file_handler got parameters len = %d filename = %s iotype = %d mode = %d",
-          len, filename, iotype, mode));
+    PLOG((1, "len %d filename %s iotype %d mode %d", len, filename, iotype,
+          mode));
 
     /* Call the create file function. */
     PIOc_createfile(ios->iosysid, &ncid, &iotype, filename, mode);
 
-
     PLOG((1, "create_file_handler succeeded!"));
+    return PIO_NOERR;
+}
+
+/**
+ * @internal
+ * This function is run on the IO tasks to create a netCDF file via
+ * the netCDF PIO integration layer.
+ *
+ * @param ios pointer to the iosystem info.
+ * @returns 0 for success, PIO_EIO for MPI Bcast errors, or error code
+ * from netCDF base function.
+ * @author Ed Hartnett
+ */
+int
+ncint_create_file_handler(iosystem_desc_t *ios)
+{
+    int ncid;
+    int len;
+    int iotype;
+    int mode;
+    int mpierr;
+
+    PLOG((1, "ncint_create_file_handler comproot %d", ios->comproot));
+    assert(ios);
+
+    /* Get the parameters for this function that the he comp master
+     * task is broadcasting. */
+    if ((mpierr = MPI_Bcast(&len, 1, MPI_INT, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+
+    /* Get space for the filename. */
+    char filename[len + 1];
+
+    if ((mpierr = MPI_Bcast(filename, len + 1, MPI_CHAR, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+    if ((mpierr = MPI_Bcast(&iotype, 1, MPI_INT, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+    if ((mpierr = MPI_Bcast(&mode, 1, MPI_INT, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+    PLOG((1, "len %d filename %s iotype %d mode %d", len, filename, iotype,
+          mode));
+
+    /* Call the create file function. */
+    PIOc_createfile(ios->iosysid, &ncid, &iotype, filename, mode);
+
+    PLOG((1, "ncint_create_file_handler succeeded!"));
     return PIO_NOERR;
 }
 
@@ -1933,16 +1979,18 @@ int delete_att_handler(iosystem_desc_t *ios)
 }
 
 /**
+ * @internal
  * This function is run on the IO tasks to open a netCDF file.
  *
  *
  * @param ios pointer to the iosystem_desc_t.
  * @returns 0 for success, PIO_EIO for MPI Bcast errors, or error code
  * from netCDF base function.
- * @internal
+ *
  * @author Ed Hartnett
  */
-int open_file_handler(iosystem_desc_t *ios)
+int
+open_file_handler(iosystem_desc_t *ios)
 {
     int ncid;
     int len;
@@ -1971,6 +2019,54 @@ int open_file_handler(iosystem_desc_t *ios)
 
     PLOG((2, "open_file_handler got parameters len = %d filename = %s iotype = %d mode = %d",
           len, filename, iotype, mode));
+
+    /* Call the open file function. Errors are handled within
+     * function, so return code can be ignored. */
+    PIOc_openfile_retry(ios->iosysid, &ncid, &iotype, filename, mode, 0, 0);
+
+    return PIO_NOERR;
+}
+
+/**
+ * @internal
+ * This function is run on the IO tasks to open a netCDF file.
+ *
+ *
+ * @param ios pointer to the iosystem_desc_t.
+ * @returns 0 for success, PIO_EIO for MPI Bcast errors, or error code
+ * from netCDF base function.
+ * @author Ed Hartnett
+ */
+int
+ncint_open_file_handler(iosystem_desc_t *ios)
+{
+    int ncid;
+    int len;
+    int iotype;
+    int mode;
+    int mpierr;
+
+    PLOG((1, "ncint_open_file_handler comproot %d", ios->comproot));
+    assert(ios);
+
+    /* Get the parameters for this function that the he comp master
+     * task is broadcasting. */
+    if ((mpierr = MPI_Bcast(&len, 1, MPI_INT, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+    PLOG((2, "len %d", len));
+
+    /* Get space for the filename. */
+    char filename[len + 1];
+
+    if ((mpierr = MPI_Bcast(filename, len + 1, MPI_CHAR, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+    if ((mpierr = MPI_Bcast(&iotype, 1, MPI_INT, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+    if ((mpierr = MPI_Bcast(&mode, 1, MPI_INT, 0, ios->intercomm)))
+        return check_mpi(ios, NULL, mpierr, __FILE__, __LINE__);
+
+    PLOG((2, "len %d filename %s iotype %d mode %d", len, filename,
+          iotype, mode));
 
     /* Call the open file function. Errors are handled within
      * function, so return code can be ignored. */
@@ -2584,6 +2680,9 @@ int pio_msg_handler2(int io_rank, int component_count, iosystem_desc_t **iosys,
         case PIO_MSG_CREATE_FILE:
             ret = create_file_handler(my_iosys);
             break;
+        case PIO_MSG_NCINT_CREATE_FILE:
+            ret = create_file_handler(my_iosys);
+            break;
         case PIO_MSG_SYNC:
             ret = sync_file_handler(my_iosys);
             break;
@@ -2593,6 +2692,9 @@ int pio_msg_handler2(int io_rank, int component_count, iosystem_desc_t **iosys,
             break;
         case PIO_MSG_OPEN_FILE:
             ret = open_file_handler(my_iosys);
+            break;
+        case PIO_MSG_NCINT_OPEN_FILE:
+            ret = ncint_open_file_handler(my_iosys);
             break;
         case PIO_MSG_CLOSE_FILE:
             ret = close_file_handler(my_iosys);
