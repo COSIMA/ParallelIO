@@ -8,7 +8,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/clib
 LDADD = ${top_builddir}/src/clib/libpioc.la
 
 # Build the test for make check.
-check_PROGRAMS = tst_pio_udf
+check_PROGRAMS = tst_pio_udf tst_pio_async
 
 if RUN_TESTS
 # Tests will run from a bash script.
