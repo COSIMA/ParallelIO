@@ -57,7 +57,7 @@ static int total_err = 0, err = 0;
             return 2;                                           \
         }                                                       \
         if (!my_rank)                                           \
-            printf("*** Tests successful!\n");                  \
+            printf("*** Tests successful!\n\n");                  \
         return 0;                                               \
     } while (0)
 
