@@ -13,10 +13,6 @@
 /** This is te default io system id. */
 extern int diosysid;
 
-/** Have we initialized the netCDF integration layer? This is where we
- * register our dispatch layer with netcdf-c. */
-extern int ncint_initialized;
-
 /**
  * Same as PIOc_Init_Intracomm().
  *
@@ -27,6 +23,10 @@ nc_def_iosystemm(MPI_Comm comp_comm, int num_iotasks, int stride, int base,
                  int rearr, int *iosysidp)
 {
     int ret;
+
+    /* Make sure PIO was initialized. */
+    if ((ret = PIO_NCINT_initialize()))
+        return ret;
 
     /* Call the PIOc_ function to initialize the intracomm. */
     if ((ret = PIOc_Init_Intracomm(comp_comm, num_iotasks, stride, base, rearr,
@@ -80,6 +80,10 @@ nc_def_async(MPI_Comm world, int num_io_procs, int *io_proc_list,
              int *iosysidp)
 {
     int ret;
+
+    /* Make sure PIO was initialized. */
+    if ((ret = PIO_NCINT_initialize()))
+        return ret;
 
     /* Call the PIOc_ function to initialize the intracomm. */
     if ((ret = PIOc_init_async(world, num_io_procs, io_proc_list,

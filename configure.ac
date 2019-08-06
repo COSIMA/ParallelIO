@@ -275,6 +275,11 @@ fi
 if test "x$enable_netcdf_integration" = xyes -a "x$have_netcdf_par" = xno; then
    AC_MSG_ERROR([Cannot use netCDF integration unless netCDF library was built for parallel I/O.])
 fi
+if test "x$enable_netcdf_integration" = xyes -a "x$enable_fortran" = xyes; then
+   AC_LANG_PUSH([Fortran])
+   AC_CHECK_LIB([netcdff], [nf_create], [], [AC_MSG_ERROR([Can't find or link to the netcdf Fortran library.])])
+   AC_LANG_POP([Fortran])
+fi
 # These are needed by ncdispatch.h. Only build with HDF5 parallel
 # versions of netCDF. */
 if test "x$enable_netcdf_integration" = xyes; then
