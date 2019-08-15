@@ -2094,12 +2094,18 @@ PIOc_createfile_int(int iosysid, int *ncidp, int *iotype, const char *filename,
      * normal PIO operation, the ncid is generated here. */
     if (use_ext_ncid)
     {
-        /* Use the ncid passed in from the netCDF dispatch code. */
-        file->pio_ncid = *ncidp;
+        /* Assign the PIO ncid. */
+        file->pio_ncid = pio_next_ncid++;
+        PLOG((2, "file->fh = %d file->pio_ncid = %d", file->fh, file->pio_ncid));
 
-        /* To prevent PIO from reusing the same ncid, if someone
-         * starting mingling netcdf integration PIO and regular PIO
-         * code. */
+        /* Change the ncid to the one we need it to be. */
+        if ((nc4_file_change_ncid(*ncidp, file->pio_ncid)))
+            return check_netcdf2(ios, NULL, ierr, __FILE__, __LINE__);
+
+        /* Change the ncid passed in from the netCDF dispatch code. */
+        *ncidp = file->pio_ncid;
+
+        /* Set the next available ncid. */
         pio_next_ncid = file->pio_ncid + 1;
     }
     else

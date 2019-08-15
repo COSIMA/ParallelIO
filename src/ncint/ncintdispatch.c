@@ -199,13 +199,13 @@ PIO_NCINT_create(const char *path, int cmode, size_t initialsz, int basepe,
     if ((ret = find_iotype_from_omode(cmode, &iotype)))
         return pio_err(ios, NULL, ret, __FILE__, __LINE__);
 
-    /* Add necessary structs to hold netcdf-4 file data. */
-    if ((ret = nc4_file_list_add(ncid, path, cmode, NULL)))
-        return ret;
-
     /* Create the file with PIO. The final parameter tests
      * createfile_int to accept the externally assigned ncid. */
     if ((ret = PIOc_createfile_int(diosysid, &ncid, &iotype, path, cmode, 1)))
+        return ret;
+
+    /* Add necessary structs to hold netcdf-4 file data. */
+    if ((ret = nc4_file_list_add(ncid, path, cmode, NULL)))
         return ret;
 
     return PIO_NOERR;
