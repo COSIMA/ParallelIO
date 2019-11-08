@@ -1,6 +1,9 @@
 # ParallelIO
 
-A high-level Parallel I/O Library for structured grid applications
+The PIO library allows HPC applications to set a subset of processors
+to do all disk I/O. NetCDF calls from computation nodes will use MPI
+messages to send/read the data from the I/O nodes. This allows I/O to
+scale on systems with many cores.
 
 ## Website
 
