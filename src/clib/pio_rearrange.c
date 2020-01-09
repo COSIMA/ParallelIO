@@ -1428,10 +1428,12 @@ box_rearrange_create(iosystem_desc_t *ios, int maplen, const PIO_Offset *compmap
                 PLOG((3, "start[%d] = %lld count[%d] = %lld", d, start[d], d, count[d]));
 #endif /* PIO_ENABLE_LOGGING */
 
+            /* Moved this outside of loop over maplen, for performance. */
+            PIO_Offset lcoord[ndims];
+
             /* For each element of the data array on the compute task,
              * find the IO task to send the data element to, and its
              * offset into the global data array. */
-            PIO_Offset lcoord[ndims];
             for (int k = 0; k < maplen; k++)
             {
                 /* An IO task has already been found for this element */
