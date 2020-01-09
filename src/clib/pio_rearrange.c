@@ -1431,13 +1431,13 @@ box_rearrange_create(iosystem_desc_t *ios, int maplen, const PIO_Offset *compmap
             /* For each element of the data array on the compute task,
              * find the IO task to send the data element to, and its
              * offset into the global data array. */
+            PIO_Offset lcoord[ndims];
             for (int k = 0; k < maplen; k++)
             {
                 /* An IO task has already been found for this element */
                 if (dest_ioproc[k] >= 0)
                     continue;
 
-                PIO_Offset lcoord[ndims];
                 bool found = true;
 
                 /* Find a destination for each entry in the compmap. */
