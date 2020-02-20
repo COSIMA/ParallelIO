@@ -162,7 +162,7 @@ if test "x$enable_docs" = xyes; then
    if test "x$enable_developer_docs" = xyes; then
       AC_SUBST([C_SRC_FILES], ["../src/clib ../src/ncint"])
    else
-      AC_SUBST([C_SRC_FILES], ["../src/clib/pio_nc.c ../src/clib/pio_nc4.c ../src/clib/pio_darray.c ../src/clib/pio_get_nc.c ../src/clib/pio_put_nc.c ../src/clib/pioc_support.c ../src/clib/pioc.c ../src/clib/pio_file.c ../src/clib/pio.h ../src/clib/pio_get_vard.c ../src/clib/pio_put_vard.c ../src/ncint/ncint_pio.c ../src/ncint/nc_put_vard.c ../src/ncint/nc_get_vard.c"])
+      AC_SUBST([C_SRC_FILES], ["../src/clib/pio_nc.c ../src/clib/pio_nc4.c ../src/clib/pio_darray.c ../src/clib/pio_get_nc.c ../src/clib/pio_put_nc.c ../src/clib/pioc_support.c ../src/clib/pioc.c ../src/clib/pio_file.c ../src/clib/pio.h ../src/clib/pio_internal.h ../src/clib/pio_get_vard.c ../src/clib/pio_put_vard.c ../src/ncint/ncint_pio.c ../src/ncint/nc_put_vard.c ../src/ncint/nc_get_vard.c"])
    fi
    AC_CONFIG_FILES([doc/Doxyfile])
 fi
