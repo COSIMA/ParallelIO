@@ -128,6 +128,58 @@ void pio_log(int severity, const char *fmt, ...);
 #define MPE_MAX_MSG_LEN 32
 #endif /* USE_MPE */
 
+/**
+ * Variable description structure.
+ */
+typedef struct var_desc_t
+{
+    /** Variable ID. */
+    int varid;
+
+    /** Non-zero if this is a record var (i.e. uses unlimited
+     * dimension). */
+    int rec_var;
+
+    /** The record number to be written. Ignored if there is no
+     * unlimited dimension. */
+    int record;
+
+    /** ID of each outstanding pnetcdf request for this variable. */
+    int *request;
+
+    /** Number of requests pending with pnetcdf. */
+    int nreqs;
+
+    /** Holds the fill value of this var. */
+    void *fillvalue;
+
+    /** Number of dimensions for this var. */
+    int ndims;
+
+    /** Non-zero if fill mode is turned on for this var. */
+    int use_fill;
+
+    /** Buffer that contains the holegrid fill values used to fill in
+     * missing sections of data when using the subset rearranger. */
+    void *fillbuf;
+
+    /** The PIO data type. */
+    int pio_type;
+
+    /** The size, in bytes, of the PIO data type. */
+    int pio_type_size;
+
+    /** The MPI type of the data. */
+    MPI_Datatype mpi_type;
+
+    /** The size in bytes of a datum of MPI type mpitype. */
+    int mpi_type_size;
+
+    /** Hash table entry. */
+    UT_hash_handle hh;
+
+} var_desc_t;
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
