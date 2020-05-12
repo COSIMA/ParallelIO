@@ -224,7 +224,10 @@ int check_darray_file(int iosysid, char *data_filename, int iotype, int my_rank,
                 break;
             case PIO_INT64:
                 if (((long long *)norec_data_in)[r] != expected_int64[r])
+		{
+		    printf("%d %lld %lld\n", r, ((long long *)norec_data_in)[r], expected_int64[r]);
                     PBAIL(ERR_WRONG);
+		}
                 break;
             case PIO_UINT64:
                 if (((unsigned long long *)norec_data_in)[r] != expected_uint64[r])
