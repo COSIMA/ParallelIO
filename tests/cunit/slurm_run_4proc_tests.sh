@@ -1,6 +1,6 @@
 #!/bin/sh -l
 # To run:
-#    sbatch -A gsd-hpcs --nprocs=4 ./slurm_run_4proc_tests.sh
+#    sbatch -A gsd-hpcs --ntasks=4 ./slurm_run_4proc_tests.sh
 #SBATCH --time=10      # time limit in minutes                                                                       #SBATCH -o %x.o%j      # Output file name to match the current scheme
 set -x
 
