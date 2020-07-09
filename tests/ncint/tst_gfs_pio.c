@@ -28,13 +28,13 @@
 #define NDIM4 4
 #define NDIM5 5
 #define NUM_PROC 4
-#define NUM_SHUFFLE_SETTINGS 2
+#define NUM_SHUFFLE_SETTINGS 1
 #ifdef HAVE_H5Z_SZIP
-#define NUM_COMPRESSION_FILTERS 2
+#define NUM_COMPRESSION_FILTERS 1
 #else
 #define NUM_COMPRESSION_FILTERS 1
 #endif
-#define NUM_DEFLATE_LEVELS 3
+#define NUM_DEFLATE_LEVELS 1
 #define NUM_UNLIM_TRIES 1
 #define THOUSAND 1000
 #define NUM_DATA_VARS 10
@@ -277,41 +277,41 @@ write_meta(int ncid, int *data_varid, int s, int f, int deflate, int u,
 
         /* Setting any filter only will work for HDF5-1.10.3 and later */
         /* versions. */
-        if (!f)
-            res = nc_def_var_deflate(ncid, data_varid[dv], s, 1, deflate);
-        else
-        {
-            res = nc_def_var_deflate(ncid, data_varid[dv], s, 0, 0);
-            if (!res)
-                res = nc_def_var_szip(ncid, data_varid[dv], 32, 32);
-        }
-#ifdef HDF5_SUPPORTS_PAR_FILTERS
-        if (res) PERR;
-#else
-        if (res != NC_EINVAL) PERR;
-#endif
+/*         if (!f) */
+/*             res = nc_def_var_deflate(ncid, data_varid[dv], s, 1, deflate); */
+/*         else */
+/*         { */
+/*             res = nc_def_var_deflate(ncid, data_varid[dv], s, 0, 0); */
+/*             if (!res) */
+/*                 res = nc_def_var_szip(ncid, data_varid[dv], 32, 32); */
+/*         } */
+/* #ifdef HDF5_SUPPORTS_PAR_FILTERS */
+/*         if (res) PERR; */
+/* #else */
+/*         if (res != NC_EINVAL) PERR; */
+/* #endif */
 
         /* if (nc_var_par_access(ncid, data_varid[dv], NC_COLLECTIVE)) PERR; */
-        if (nc_enddef(ncid)) PERR;
+        /* if (nc_enddef(ncid)) PERR; */
     }
 
-    if (nc_redef(ncid)) PERR;
-    if (nc_put_att_text(ncid, varid[0], "long_name", strlen("T-cell longitude"), "T-cell longitude")) PERR;
-    if (nc_put_att_text(ncid, varid[0], "units", strlen("degrees_E"), "degrees_E")) PERR;
+    /* if (nc_redef(ncid)) PERR; */
+    /* if (nc_put_att_text(ncid, varid[0], "long_name", strlen("T-cell longitude"), "T-cell longitude")) PERR; */
+    /* if (nc_put_att_text(ncid, varid[0], "units", strlen("degrees_E"), "degrees_E")) PERR; */
 
-    if (nc_put_att_text(ncid, varid[2], "long_name", strlen("T-cell latiitude"), "T-cell latiitude")) PERR;
-    if (nc_put_att_text(ncid, varid[2], "units", strlen("degrees_N"), "degrees_N")) PERR;
-    if (nc_enddef(ncid)) PERR;
+    /* if (nc_put_att_text(ncid, varid[2], "long_name", strlen("T-cell latiitude"), "T-cell latiitude")) PERR; */
+    /* if (nc_put_att_text(ncid, varid[2], "units", strlen("degrees_N"), "degrees_N")) PERR; */
+    /* if (nc_enddef(ncid)) PERR; */
 
-    if (nc_redef(ncid)) PERR;
+    /* if (nc_redef(ncid)) PERR; */
 
-    for (dv = 0; dv < NUM_DATA_VARS; dv++)
-    {
-        float compress_err = 42.22;
-        int nbits = 5;
-        if (nc_put_att_float(ncid, data_varid[dv], "max_abs_compression_error", NC_FLOAT, 1, &compress_err)) PERR;
-        if (nc_put_att_int(ncid, data_varid[dv], "nbits", NC_INT, 1, &nbits)) PERR;
-    }
+    /* for (dv = 0; dv < NUM_DATA_VARS; dv++) */
+    /* { */
+    /*     float compress_err = 42.22; */
+    /*     int nbits = 5; */
+    /*     if (nc_put_att_float(ncid, data_varid[dv], "max_abs_compression_error", NC_FLOAT, 1, &compress_err)) PERR; */
+    /*     if (nc_put_att_int(ncid, data_varid[dv], "nbits", NC_INT, 1, &nbits)) PERR; */
+    /* } */
 
     if (nc_enddef(ncid)) PERR;
     return 0;
@@ -636,12 +636,12 @@ main(int argc, char **argv)
 			free(compdof);
 
 			/* Write one record each of the data variables. */
-			for (dv = 0; dv < NUM_DATA_VARS; dv++)
-			{
-			    if (nc_put_vara_float(ncid, data_varid[dv], data_start,
-						  data_count, value_data)) PERR;
-			    if (nc_redef(ncid)) PERR;
-			}
+			/* for (dv = 0; dv < NUM_DATA_VARS; dv++) */
+			/* { */
+			/*     if (nc_put_vara_float(ncid, data_varid[dv], data_start, */
+			/* 			  data_count, value_data)) PERR; */
+			/*     if (nc_redef(ncid)) PERR; */
+			/* } */
 
 			/* Close the file. */
 			if (nc_close(ncid)) PERR;
