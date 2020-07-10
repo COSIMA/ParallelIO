@@ -236,13 +236,13 @@ write_meta(int ncid, int *data_varid, int s, int f, int deflate, int u,
     /* if (nc_var_par_access(ncid, varid[6], NC_INDEPENDENT)) PERR; */
     if (nc_enddef(ncid)) PERR;
 
-    /* In NOAA code, do all processors write the single time value? */
-    if (my_rank == 0)
-        if (nc_put_var_double(ncid, varid[6], &value_time)) PERR;;
-    if (nc_redef(ncid)) PERR;
+    /* /\* In NOAA code, do all processors write the single time value? *\/ */
+    /* if (my_rank == 0) */
+    /*     if (nc_put_var_double(ncid, varid[6], &value_time)) PERR;; */
+    /* if (nc_redef(ncid)) PERR; */
 
     /* Write variable grid_xt data. */
-    if (nc_enddef(ncid)) PERR;
+    /* if (nc_enddef(ncid)) PERR; */
     if (nc_put_vara_double(ncid, varid[0], &grid_xt_start, &grid_xt_size, grid_xt)) PERR;
     if (nc_redef(ncid)) PERR;
 
@@ -292,26 +292,26 @@ write_meta(int ncid, int *data_varid, int s, int f, int deflate, int u,
 /* #endif */
 
         /* if (nc_var_par_access(ncid, data_varid[dv], NC_COLLECTIVE)) PERR; */
-        /* if (nc_enddef(ncid)) PERR; */
+        if (nc_enddef(ncid)) PERR;
     }
 
-    /* if (nc_redef(ncid)) PERR; */
-    /* if (nc_put_att_text(ncid, varid[0], "long_name", strlen("T-cell longitude"), "T-cell longitude")) PERR; */
-    /* if (nc_put_att_text(ncid, varid[0], "units", strlen("degrees_E"), "degrees_E")) PERR; */
+    if (nc_redef(ncid)) PERR;
+    if (nc_put_att_text(ncid, varid[0], "long_name", strlen("T-cell longitude"), "T-cell longitude")) PERR;
+    if (nc_put_att_text(ncid, varid[0], "units", strlen("degrees_E"), "degrees_E")) PERR;
 
-    /* if (nc_put_att_text(ncid, varid[2], "long_name", strlen("T-cell latiitude"), "T-cell latiitude")) PERR; */
-    /* if (nc_put_att_text(ncid, varid[2], "units", strlen("degrees_N"), "degrees_N")) PERR; */
-    /* if (nc_enddef(ncid)) PERR; */
+    if (nc_put_att_text(ncid, varid[2], "long_name", strlen("T-cell latiitude"), "T-cell latiitude")) PERR;
+    if (nc_put_att_text(ncid, varid[2], "units", strlen("degrees_N"), "degrees_N")) PERR;
+    if (nc_enddef(ncid)) PERR;
 
-    /* if (nc_redef(ncid)) PERR; */
+    if (nc_redef(ncid)) PERR;
 
-    /* for (dv = 0; dv < NUM_DATA_VARS; dv++) */
-    /* { */
-    /*     float compress_err = 42.22; */
-    /*     int nbits = 5; */
-    /*     if (nc_put_att_float(ncid, data_varid[dv], "max_abs_compression_error", NC_FLOAT, 1, &compress_err)) PERR; */
-    /*     if (nc_put_att_int(ncid, data_varid[dv], "nbits", NC_INT, 1, &nbits)) PERR; */
-    /* } */
+    for (dv = 0; dv < NUM_DATA_VARS; dv++)
+    {
+        float compress_err = 42.22;
+        int nbits = 5;
+        if (nc_put_att_float(ncid, data_varid[dv], "max_abs_compression_error", NC_FLOAT, 1, &compress_err)) PERR;
+        if (nc_put_att_int(ncid, data_varid[dv], "nbits", NC_INT, 1, &nbits)) PERR;
+    }
 
     if (nc_enddef(ncid)) PERR;
     return 0;
