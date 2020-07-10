@@ -172,7 +172,7 @@ write_meta(int ncid, int *data_varid, int s, int f, int deflate, int u,
     int varid[NUM_META_VARS];
     double value_time = 2.0;
     int dv;
-    int res;
+    /* int res; */
 
     /* Turn off fill mode. */
     if (nc_set_fill(ncid, NC_NOFILL, NULL)) PERR;
@@ -244,20 +244,14 @@ write_meta(int ncid, int *data_varid, int s, int f, int deflate, int u,
     /* Write variable grid_xt data. */
     /* if (nc_enddef(ncid)) PERR; */
     if (nc_put_vara_double(ncid, varid[0], &grid_xt_start, &grid_xt_size, grid_xt)) PERR;
-    if (nc_redef(ncid)) PERR;
 
     /* Write lon data. */
-    if (nc_enddef(ncid)) PERR;
     if (nc_put_vara_double(ncid, varid[1], latlon_start, latlon_count, lon)) PERR;
-    if (nc_redef(ncid)) PERR;
 
     /* Write grid_yt data. */
-    if (nc_enddef(ncid)) PERR;
     if (nc_put_vara_double(ncid, varid[2], &grid_yt_start, &grid_yt_size, grid_yt)) PERR;
-    if (nc_redef(ncid)) PERR;
 
     /* Write lat data. */
-    if (nc_enddef(ncid)) PERR;
     if (nc_put_vara_double(ncid, varid[3], latlon_start, latlon_count, lat)) PERR;
 
     /* Specify dimensions for our data vars. */
@@ -525,7 +519,10 @@ main(int argc, char **argv)
     double *lon = NULL;
     double *lat = NULL;
     float *value_data;
-    int deflate_level[NUM_DEFLATE_LEVELS] = {1, 4, 9};
+    /* int deflate_level[NUM_DEFLATE_LEVELS] = {1, 4, 9}; */
+    int deflate_level[NUM_DEFLATE_LEVELS] = {1};
+    size_t *decomp_array;
+    size_t elements_per_pe;
 
     int f, s, u;
     int i, j, k, dv, dl;
@@ -549,16 +546,28 @@ main(int argc, char **argv)
     /* Decompose phalf and pfull. */
     if (decomp_p(my_rank, ntasks, data_count, dim_len, &phalf_start,
 		 &phalf_size, &phalf, &pfull_start, &pfull_size, &pfull)) PERR;
+
+    /* How many data elements per processing unit? */
+    elements_per_pe = data_count[3] * data_count[2] * data_count[1];
     
     /* Allocate space to hold the data. */
-    if (!(value_data = malloc(data_count[3] * data_count[2] * data_count[1] *
-			      sizeof(float)))) PERR;
+    if (!(value_data = malloc(elements_per_pe * sizeof(float)))) PERR;
+
+    /* Allocate space to hold the decomposition array. */
+    if (!(decomp_array = malloc(elements_per_pe * sizeof(float)))) PERR;
 
     /* Create some data. */
     for (k = 0; k < data_count[1]; k++)
+    {
     	for (j = 0; j < data_count[2]; j++)
+	{
     	    for(i = 0; i < data_count[3]; i++)
+	    {
                 value_data[j * data_count[3] + i] = my_rank * 100 + i + j + k;
+                decomp_array[k * data_count[2] * data_count[3] + j * data_count[3] + i] = i + j + k;
+	    }
+	}
+    }
 
     if (my_rank == 0)
     {
@@ -632,16 +641,14 @@ main(int argc, char **argv)
 
 			/* Create the PIO decomposition for this test. */
 			if (nc_def_decomp(iosysid, PIO_INT, NDIM2, &dim_len[1], elements_per_pe,
-					  compdof, &ioid, 1, NULL, NULL)) PERR;
+					  decomp_array, &ioid, 1, NULL, NULL)) PERR;
 			free(compdof);
 
 			/* Write one record each of the data variables. */
-			/* for (dv = 0; dv < NUM_DATA_VARS; dv++) */
-			/* { */
-			/*     if (nc_put_vara_float(ncid, data_varid[dv], data_start, */
-			/* 			  data_count, value_data)) PERR; */
-			/*     if (nc_redef(ncid)) PERR; */
-			/* } */
+			for (dv = 0; dv < NUM_DATA_VARS; dv++)
+			{
+			    if (nc_put_vard_float(ncid, data_varid[dv], ioid, 0, value_data)) PERR;
+			}
 
 			/* Close the file. */
 			if (nc_close(ncid)) PERR;
